@@ -1,0 +1,144 @@
+1. users Table
+Handles user registration and profile information. The base is provided by Laravel Jetstream, with our custom additions for location and contact.
+
+id (Primary Key)
+
+name (String)
+
+email (String, Unique)
+
+password (String)
+
+phone_number (String, Nullable) - For future app features.
+
+last_known_latitude (Decimal, Nullable) - To store location if the user shares it.
+
+last_known_longitude (Decimal, Nullable)
+
+created_at, updated_at (Timestamps)
+
+2. denominations Table
+A lookup table for categorizing churches, ensuring data consistency and enabling easy filtering.
+
+id (Primary Key)
+
+name (String, Unique) - e.g., "Southern Baptist", "Non-Denominational".
+
+slug (String, Unique) - The URL-friendly version, e.g., "southern-baptist".
+
+description (Text, Nullable) - For adding more details about the denomination.
+
+created_at, updated_at (Timestamps)
+
+3. churches Table
+The central table of the application, containing all core information about each church, including timezone awareness.
+
+id (Primary Key)
+
+name (String)
+
+denomination_id (Foreign Key) - Links to the denominations table.
+
+address (String)
+
+city (String)
+
+state (String)
+
+zip_code (String)
+
+latitude (Decimal) - For mapping and distance calculations.
+
+longitude (Decimal)
+
+phone_number (String, Nullable)
+
+email (String, Nullable, Unique) - Unique constraint to prevent duplicate entries.
+
+website_url (String, Nullable)
+
+timezone (String) - The local timezone of the church, e.g., 'America/Los_Angeles'.
+
+created_at, updated_at (Timestamps)
+
+4. reviews Table
+Contains user-generated ratings and comments for churches, now with a moderation system.
+
+id (Primary Key)
+
+user_id (Foreign Key) - Links to the users table.
+
+church_id (Foreign Key) - Links to the churches table.
+
+rating (Integer) - A score from 1 to 5.
+
+title (String, Nullable)
+
+body (Text)
+
+status (String, default: 'pending') - For moderation: 'pending', 'approved', 'rejected'.
+
+created_at, updated_at (Timestamps)
+
+5. amenities Table
+A highly scalable lookup table for all possible features a church might offer.
+
+id (Primary Key)
+
+name (String, Unique) - e.g., "Kids Ministry", "Wheelchair Accessible", "Free Breakfast".
+
+slug (String, Unique)
+
+icon_svg (Text, Nullable) - For storing a display icon.
+
+created_at, updated_at (Timestamps)
+
+6. amenity_church (Pivot Table)
+The pivot table connecting Churches and Amenities, creating a flexible many-to-many relationship.
+
+id (Primary Key)
+
+amenity_id (Foreign Key) - Links to the amenities table.
+
+church_id (Foreign Key) - Links to the churches table.
+
+7. event_types Table
+A lookup table for categorizing all events, enabling powerful filtering for users.
+
+id (Primary Key)
+
+name (String, Unique) - e.g., "Morning Service", "Youth Night", "Small Group".
+
+slug (String, Unique)
+
+created_at, updated_at (Timestamps)
+
+8. events Table
+The robust and searchable schedule system for every recurring event at each church.
+
+id (Primary Key)
+
+church_id (Foreign Key) - Links to the churches table.
+
+event_type_id (Foreign Key) - Links to the event_types table.
+
+day_of_week (Integer) - Using the convention: Sunday=0, Monday=1, ..., Saturday=6.
+
+start_time (Time)
+
+end_time (Time, Nullable)
+
+description (Text, Nullable) - For extra details, e.g., "Childcare provided".
+
+Summary of Relationships
+A Denomination has many Churches. (One-to-Many)
+
+A User has many Reviews. (One-to-Many)
+
+A Church has many Reviews. (One-to-Many)
+
+A Church has many Events. (One-to-Many)
+
+An Event Type has many Events. (One-to-Many)
+
+A Church has and belongs to many Amenities. (Many-to-Many, via the amenity_church table)

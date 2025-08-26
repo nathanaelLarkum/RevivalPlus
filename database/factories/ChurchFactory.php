@@ -18,7 +18,9 @@ class ChurchFactory extends Factory
     public function definition(): array
     {
         return [
-            'denomination_id' => Denomination::factory(),
+            // Corrected line: Instead of creating a new denomination,
+            // get a random one that already exists from the seeder.
+            'denomination_id' => Denomination::inRandomOrder()->first()->id,
             'name' => 'Community Church of ' . $this->faker->city,
             'address' => $this->faker->streetAddress(),
             'city' => $this->faker->city(),
@@ -27,7 +29,7 @@ class ChurchFactory extends Factory
             'latitude' => $this->faker->latitude(34, 40),
             'longitude' => $this->faker->longitude(-120, -80),
             'phone_number' => $this->faker->optional()->phoneNumber(),
-            'email' => $this->faker->optional()->unique()->companyEmail(),
+            'email' => $this->faker->unique()->safeEmail(),
             'website_url' => $this->faker->optional()->url(),
             'timezone' => $this->faker->timezone(),
         ];

@@ -29,7 +29,7 @@ return new class extends Migration
             $table->decimal('longitude', 10, 7);
 
             $table->string('phone_number')->nullable();
-            $table->string('email')->nullable()->unique();
+            $table->string('email')->unique();
             $table->string('website_url')->nullable();
             $table->string('timezone'); // e.g., 'America/Los_Angeles'
             $table->timestamps();

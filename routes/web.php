@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Country;
+use App\Models\Denomination;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,3 +17,14 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+//registration
+Route::get('/register', function () {
+    $denominations = Denomination::orderBy('name')->get();
+    $countries = Country::orderBy('name')->get();
+
+    return view('auth.register', [
+        'denominations' => $denominations,
+        'countries' => $countries,
+    ]);
+})->name('register');

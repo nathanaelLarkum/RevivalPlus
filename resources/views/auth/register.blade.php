@@ -1,205 +1,152 @@
-{{--
-|--------------------------------------------------------------------------
-| Guest Layout for Registration Page
-|--------------------------------------------------------------------------
-|
-| This file contains the complete, updated Blade template for the user
-| registration form. It now includes dynamic fields based on the
-| selected user type ('user' or 'church'), incorporates the new color
-| scheme, and is designed to be responsive for mobile devices.
-|
---}}
 <x-guest-layout>
-    <x-slot name="title">Register</x-slot>
-
-    {{-- Main authentication card container --}}
-    <x-authentication-card class="bg-c3 dark:bg-d3 text-c4 dark:text-d4">
-        {{-- Logo section at the top of the card --}}
+    <x-authentication-card>
         <x-slot name="logo">
             <x-authentication-card-logo />
         </x-slot>
 
-        {{-- Alpine.js data container for tab switching functionality --}}
-        <div x-data="{ userType: '{{ old('user_type', 'user') }}' }">
+        <x-validation-errors class="mb-4" />
 
-            {{-- Tab navigation buttons section --}}
-            <div class="flex border-b border-c5 dark:border-d5">
-                {{-- User tab button --}}
-                <button @click="userType = 'user'"
-                    class="w-1/2 py-2 text-center transition-colors duration-200"
-                    :class="userType === 'user' ? 'border-b-2 border-c1 dark:border-d1 font-bold text-c4 dark:text-d4' : 'text-c5 dark:text-d5 hover:text-c4 dark:hover:text-d4'">
-                    User
+        <div x-data="{ userType: 'user' }" class="w-full">
+            <!-- Tab Buttons -->
+            <div class="mb-4 flex justify-center border-b border-gray-200">
+                <button type="button" @click="userType = 'user'"
+                        :class="{ 'border-indigo-500 text-indigo-600': userType === 'user', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': userType !== 'user' }"
+                        class="py-4 px-1 text-center border-b-2 font-medium text-sm w-1/2 focus:outline-none">
+                    Register as User
                 </button>
-                {{-- Church tab button --}}
-                <button @click="userType = 'church'"
-                    class="w-1/2 py-2 text-center transition-colors duration-200"
-                    :class="userType === 'church' ? 'border-b-2 border-c1 dark:border-d1 font-bold text-c4 dark:text-d4' : 'text-c5 dark:text-d5 hover:text-c4 dark:hover:text-d4'">
-                    Church
+                <button type="button" @click="userType = 'church'"
+                        :class="{ 'border-indigo-500 text-indigo-600': userType === 'church', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': userType !== 'church' }"
+                        class="py-4 px-1 text-center border-b-2 font-medium text-sm w-1/2 focus:outline-none">
+                    Register a Church
                 </button>
             </div>
 
-            {{-- Main registration form --}}
             <form method="POST" action="{{ route('register') }}">
                 @csrf
-
-                {{-- Hidden input to track selected user type --}}
                 <input type="hidden" name="user_type" :value="userType">
 
-                {{--
-                |--------------------------------------------------------------------------
-                | User-Specific Fields Section
-                |--------------------------------------------------------------------------
-                |
-                | This section is shown when the 'User' tab is active. It includes basic
-                | fields for a personal user account.
-                |
-                --}}
-                <div x-show="userType === 'user'" class="mt-4 space-y-4">
-                    {{-- User Name input field --}}
+                <!-- User-Specific Fields -->
+                <div x-show="userType === 'user'">
                     <div>
-                        <x-label for="user_name" value="Name" />
-                        <x-input id="user_name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-                        @error('name') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
+                        <x-label for="name" value="{{ __('Name') }}" />
+                        <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
                     </div>
                 </div>
 
-                {{--
-                |--------------------------------------------------------------------------
-                | Church-Specific Fields Section
-                |--------------------------------------------------------------------------
-                |
-                | This section is shown when the 'Church' tab is active. It includes all
-                | the custom fields you specified for a church profile.
-                |
-                --}}
-                <div x-show="userType === 'church'" class="mt-4 space-y-4">
-                    {{-- Church Name input field --}}
-                    <div>
-                        <x-label for="church_name" value="Church Name" />
-                        <x-input id="church_name" class="block mt-1 w-full" type="text" name="church_name" :value="old('church_name')" required />
-                        @error('church_name') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    {{-- Sunday Services Dropdown --}}
-                    <div>
-                        <x-label for="sunday_services" value="All Sunday Services" />
-                        {{-- NOTE: This component is a placeholder. A custom component or livewire might be needed for a better user experience. --}}
-                        <select name="sunday_services[]" id="sunday_services" multiple
-                                class="border-c5 dark:border-d5 text-c4 dark:text-d4 bg-c3 dark:bg-d3 focus:border-c1 focus:ring-c1 rounded-md shadow-sm block mt-1 w-full">
-                            <option value="morning">Morning service (Before 12:00)</option>
-                            <option value="afternoon">Afternoon service (12:00-5:00)</option>
-                            <option value="evening">Evening service (After 5:00)</option>
-                        </select>
-                        @error('sunday_services') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    {{-- Address Fields --}}
-                    {{--
-                    | NOTE: A truly universal address form is not possible due to global variations.
-                    | This structured approach is a robust and widely-used solution.
-                    |
-                    --}}
-                    <div>
-                        <x-label for="street" value="Address" />
-                        <x-input id="street" class="block mt-1 w-full" type="text" name="street" :value="old('street')" placeholder="Street Address" />
-                        <x-input id="city" class="block mt-1 w-full" type="text" name="city" :value="old('city')" placeholder="City" />
-                        <div class="flex space-x-2 mt-1">
-                            <x-input id="state" class="w-1/2" type="text" name="state" :value="old('state')" placeholder="State / Province" />
-                            <x-input id="postal_code" class="w-1/2" type="text" name="postal_code" :value="old('postal_code')" placeholder="Postal Code" />
+                <!-- Church-Specific Fields -->
+                <div x-show="userType === 'church'" x-cloak style="display: none !important;">
+                    <div class="space-y-4">
+                        <div>
+                            <x-label for="church_name" value="{{ __('Church Name') }}" />
+                            <x-input id="church_name" class="block mt-1 w-full" type="text" name="church_name" :value="old('church_name')" />
                         </div>
-                        <x-input id="country" class="block mt-1 w-full" type="text" name="country" :value="old('country')" placeholder="Country" />
-                        @error('street') <span class="text-warning text-sm mt-1">Please provide a street address.</span> @enderror
-                        @error('city') <span class="text-warning text-sm mt-1">Please provide a city.</span> @enderror
-                    </div>
 
-                    {{-- Photos Input (select multiple) --}}
-                    {{--
-                    | NOTE: The `accept` attribute provides client-side guidance, but you MUST
-                    | perform server-side validation to ensure security (e.g., check file size,
-                    | mime type, and run through an image processor to prevent malicious uploads).
-                    |
-                    --}}
-                    <div>
-                        <x-label for="photos" value="Photos" />
-                        <x-input id="photos" class="block mt-1 w-full" type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/gif" />
-                        @error('photos') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <x-label for="denomination_id" value="{{ __('Denomination') }}" />
+                                <select name="denomination_id" id="denomination_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">Select a Denomination</option>
+                                    @foreach ($denominations as $denomination)
+                                        <option value="{{ $denomination->id }}" {{ old('denomination_id') == $denomination->id ? 'selected' : '' }}>{{ $denomination->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <x-label for="country_id" value="{{ __('Country') }}" />
+                                <select name="country_id" id="country_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">Select a Country</option>
+                                    @foreach ($countries as $country)
+                                        <option value="{{ $country->id }}" {{ old('country_id') == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
 
-                    {{-- Website input field --}}
-                    <div>
-                        <x-label for="website" value="Website" />
-                        <x-input id="website" class="block mt-1 w-full" type="url" name="website" :value="old('website')" placeholder="https://example.com" />
-                        @error('website') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
+                        <div>
+                            <x-label for="address_line_1" value="{{ __('Address Line 1') }}" />
+                            <x-input id="address_line_1" class="block mt-1 w-full" type="text" name="address_line_1" :value="old('address_line_1')" />
+                        </div>
 
-                    {{-- Instagram input field --}}
-                    <div>
-                        <x-label for="instagram" value="Instagram" />
-                        <x-input id="instagram" class="block mt-1 w-full" type="text" name="instagram" :value="old('instagram')" placeholder="@username" />
-                        @error('instagram') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <x-label for="city" value="{{ __('City') }}" />
+                                <x-input id="city" class="block mt-1 w-full" type="text" name="city" :value="old('city')" />
+                            </div>
+                            <div>
+                                <x-label for="state_province_region" value="{{ __('State / Province / Region') }}" />
+                                <x-input id="state_province_region" class="block mt-1 w-full" type="text" name="state_province_region" :value="old('state_province_region')" />
+                            </div>
+                            <div>
+                                <x-label for="postal_code" value="{{ __('Postal Code') }}" />
+                                <x-input id="postal_code" class="block mt-1 w-full" type="text" name="postal_code" :value="old('postal_code')" />
+                            </div>
+                        </div>
 
-                    {{-- Facebook input field --}}
-                    <div>
-                        <x-label for="facebook" value="Facebook" />
-                        <x-input id="facebook" class="block mt-1 w-full" type="text" name="facebook" :value="old('facebook')" placeholder="pagename" />
-                        @error('facebook') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
-                </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <x-label for="website_url" value="{{ __('Website URL') }}" />
+                                <x-input id="website_url" class="block mt-1 w-full" type="url" name="website_url" :value="old('website_url')" />
+                            </div>
+                            <div>
+                                <x-label for="instagram_url" value="{{ __('Instagram URL') }}" />
+                                <x-input id="instagram_url" class="block mt-1 w-full" type="url" name="instagram_url" :value="old('instagram_url')" />
+                            </div>
+                            <div>
+                                <x-label for="facebook_url" value="{{ __('Facebook URL') }}" />
+                                <x-input id="facebook_url" class="block mt-1 w-full" type="url" name="facebook_url" :value="old('facebook_url')" />
+                            </div>
+                        </div>
 
-                {{--
-                |--------------------------------------------------------------------------
-                | Common Fields for Both User Types
-                |--------------------------------------------------------------------------
-                |
-                | These fields (email, password) are essential for every registration and
-                | are displayed regardless of the selected tab.
-                |
-                --}}
-                <div class="mt-4 space-y-4">
-                    <div>
-                        <x-label for="email" value="Email" />
-                        <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="email" />
-                        @error('email') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <x-label for="password" value="Password" />
-                        <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-                        @error('password') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <x-label for="password_confirmation" value="Confirm Password" />
-                        <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-                        @error('password_confirmation') <span class="text-warning text-sm mt-1">{{ $message }}</span> @enderror
+                        <!-- Livewire Filter Panel -->
+                        <div class="mt-4">
+                            <x-label value="{{ __('Church Features & Amenities') }}" />
+                            <div class="p-4 border rounded-md mt-1">
+                                @livewire('filter-panel')
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Livewire 'Filter Panel' Component Placeholder --}}
-                {{--
-                | NOTE: This is a placeholder. You will need to create a Livewire component
-                | named 'filter-panel' for this to work correctly.
-                | For example: php artisan make:livewire filter-panel
-                |
-                --}}
+                <!-- Common Fields -->
                 <div class="mt-4">
-                    @livewire('filter-panel')
+                    <x-label for="email" value="{{ __('Email') }}" />
+                    <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
                 </div>
 
-                {{-- Submit button section --}}
                 <div class="mt-4">
-                    <x-button class="w-full bg-c4 hover:bg-ch4 dark:bg-d4 dark:hover:bg-dh4 text-c3 dark:text-d4 font-text">
-                        Register as <span x-text="userType.charAt(0).toUpperCase() + userType.slice(1)" class="pl-1"></span>
-                    </x-button>
+                    <x-label for="password" value="{{ __('Password') }}" />
+                    <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
                 </div>
 
-                {{-- 'Already registered?' link --}}
-                <div class="text-sm mt-5 text-center">
-                    {{ __('Already registered?') }}
-                    <a class="font-medium text-c1 hover:text-ch1 dark:text-d1 dark:hover:text-dh1" href="{{ route('login') }}">
-                        {{ __('Sign In') }}
+                <div class="mt-4">
+                    <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
+                    <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+                </div>
+
+                @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
+                    <div class="mt-4">
+                        <x-label for="terms">
+                            <div class="flex items-center">
+                                <x-checkbox name="terms" id="terms" required />
+                                <div class="ms-2">
+                                    {!! __('I agree to the :terms_of_service and :privacy_policy', [
+                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Terms of Service').'</a>',
+                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Privacy Policy').'</a>',
+                                    ]) !!}
+                                </div>
+                            </div>
+                        </x-label>
+                    </div>
+                @endif
+
+                <div class="flex items-center justify-end mt-4">
+                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+                        {{ __('Already registered?') }}
                     </a>
+
+                    <x-button class="ms-4">
+                        {{ __('Register') }}
+                    </x-button>
                 </div>
             </form>
         </div>

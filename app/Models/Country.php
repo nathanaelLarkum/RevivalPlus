@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Amenity extends Model
+class Country extends Model
 {
     use HasFactory;
 
@@ -16,15 +16,21 @@ class Amenity extends Model
      */
     protected $fillable = [
         'name',
-        'slug',
-        'icon_svg',
+        'code',
     ];
 
     /**
-     * The churches that have this amenity.
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
+     * Get the churches for the country.
      */
     public function churches()
     {
-        return $this->belongsToMany(Church::class, 'amenity_church');
+        return $this->hasMany(Church::class);
     }
 }

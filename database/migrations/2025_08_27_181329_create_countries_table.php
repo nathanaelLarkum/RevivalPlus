@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('amenities', function (Blueprint $table) {
+        Schema::create('countries', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('slug')->unique();
-            $table->text('icon_svg')->nullable();
-            $table->timestamps();
+            $table->string('code', 2)->unique(); // Standard 2-letter ISO country code
+            // No timestamps needed for this lookup table as it will be seeded once.
         });
     }
 
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('amenities');
+        Schema::dropIfExists('countries');
     }
 };

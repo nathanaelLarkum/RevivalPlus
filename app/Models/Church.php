@@ -17,16 +17,19 @@ class Church extends Model
     protected $fillable = [
         'name',
         'denomination_id',
-        'address',
+        'country_id',
+        'address_line_1',
+        'address_line_2',
         'city',
-        'state',
-        'zip_code',
+        'state_province_region',
+        'postal_code',
         'latitude',
         'longitude',
-        'phone_number',
         'email',
-        'website_url',
         'timezone',
+        'website_url',
+        'instagram_url',
+        'facebook_url',
     ];
 
     /**
@@ -40,7 +43,7 @@ class Church extends Model
     ];
 
     /**
-     * Get the denomination that this church belongs to.
+     * Get the denomination that owns the church.
      */
     public function denomination()
     {
@@ -48,7 +51,23 @@ class Church extends Model
     }
 
     /**
-     * Get all of the reviews for the church.
+     * Get the country that the church is in.
+     */
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    /**
+     * The tags that belong to the church.
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'church_tag');
+    }
+
+    /**
+     * Get the reviews for the church.
      */
     public function reviews()
     {
@@ -56,18 +75,10 @@ class Church extends Model
     }
 
     /**
-     * Get all of the events for the church.
+     * Get the events for the church.
      */
     public function events()
     {
         return $this->hasMany(Event::class);
-    }
-
-    /**
-     * The amenities that belong to the church.
-     */
-    public function amenities()
-    {
-        return $this->belongsToMany(Amenity::class, 'amenity_church');
     }
 }

@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('category')->index(); // To group tags, e.g., 'service-style', 'language'
+            $table->string('category');
+            $table->string('emoji')->nullable();
             $table->timestamps();
         });
     }
@@ -28,3 +29,4 @@ return new class extends Migration
         Schema::dropIfExists('tags');
     }
 };
+

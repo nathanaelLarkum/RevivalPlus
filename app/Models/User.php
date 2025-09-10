@@ -62,4 +62,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+
+    /**
+     * Get the church associated with the user.
+     * A user can be the owner/creator of one church.
+     */
+    public function church()
+    {
+        return $this->hasOne(Church::class);
+    }
 }
+

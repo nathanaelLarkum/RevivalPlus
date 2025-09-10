@@ -12,7 +12,7 @@ module.exports = {
         extend: {
             colors: {
             // Light Mode Color Palette
-            'c1': '#0101D1', // Primary Blue
+            'c1': '#3c0fd0ff', // Primary Blue
             'c2': '#384D48', // Secondary Green-Grey
             'c3': '#FBFBFB', // Off-White Background
             'c4': '#2F2F2F', // Dark Grey Text
@@ -42,8 +42,10 @@ module.exports = {
             // System/Status Colors
             'warning': '#E53E3E', // A nice, standard red
             'success': '#38A169', // A nice, standard green
-            'warning-hover': '#C53030', // A slightly darker red for hover
-            'success-hover': '#2F855A', // A slightly darker green for hover
+            'warningh': '#C53030', // A slightly darker red for hover
+            'successh': '#2F855A', // A slightly darker green for hover
+            'w':'#FFFFFF', // White
+            'b':'#000000', // Black
             },
         },
     },

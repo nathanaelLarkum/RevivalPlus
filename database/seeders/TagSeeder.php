@@ -13,25 +13,92 @@ class TagSeeder extends Seeder
      */
     public function run(): void
     {
+        // Data structure now includes an emoji for each tag name
         $tags = [
-            'service-style' => ['Modern', 'Vibrant Worship', 'Calm / Reflective', 'Traditional / Liturgical', 'Miracles / Prophetic', 'Historic Architecture'],
-            'language' => ['German', 'English', 'Spanish', 'Portuguese', 'French', 'Russian', 'Ukrainian', 'Arabic', 'Other'],
-            'translation' => ['German', 'English', 'Spanish', 'Portuguese', 'French', 'Russian', 'Ukrainian', 'Arabic', 'Other'],
-            'church-size' => ['Fewer than 50 members', '50–150 members', '150–500 members', 'More than 500 members'],
-            'fellowship' => ['Coffee after the Service', 'Breakfast before the Service', 'Lunch after the Service', 'Dinner after the Service', 'Hangout after the Service'],
-            'service-offers' => ['Kids’ Programme', 'Creche / Baby Care', 'Youth Programme'],
-            'program' => ['Small Groups', 'Discipleship Course', 'Bible Study', 'Evangelism / Outreach', 'Worship Nights', 'Prayer Nights', 'Mission Trips'],
-            'social-help' => ['Food Bank', 'Shelter', 'Clothing Donation', 'Counselling', 'Language Courses', 'Study Spaces'],
-            'accessibility' => ['Wheelchair Accessible', 'Sign Language Interpreter', 'Braille Materials', 'Accessible toilet', 'Parking', 'Bicycle Racks', 'Livestream'],
+            'service-style' => [
+                ['name' => 'Modern', 'emoji' => '✨'],
+                ['name' => 'Vibrant Worship', 'emoji' => '🎉'],
+                ['name' => 'Calm / Reflective', 'emoji' => '😌'],
+                ['name' => 'Traditional / Liturgical', 'emoji' => '🏛️'],
+                ['name' => 'Miracles / Prophetic', 'emoji' => '🙏'],
+                ['name' => 'Historic Architecture', 'emoji' => '🏰'],
+            ],
+            'language' => [
+                ['name' => 'German', 'emoji' => '🇩🇪'],
+                ['name' => 'English', 'emoji' => '🇬🇧'],
+                ['name' => 'Spanish', 'emoji' => '🇪🇸'],
+                ['name' => 'Portuguese', 'emoji' => '🇵🇹'],
+                ['name' => 'French', 'emoji' => '🇫🇷'],
+                ['name' => 'Russian', 'emoji' => '🇷🇺'],
+                ['name' => 'Ukrainian', 'emoji' => '🇺🇦'],
+                ['name' => 'Arabic', 'emoji' => '🇸🇦'],
+                ['name' => 'Other', 'emoji' => '🏳️'],
+            ],
+            'translation' => [
+                ['name' => 'German', 'emoji' => '🇩🇪'],
+                ['name' => 'English', 'emoji' => '🇬🇧'],
+                ['name' => 'Spanish', 'emoji' => '🇪🇸'],
+                ['name' => 'Portuguese', 'emoji' => '🇵🇹'],
+                ['name' => 'French', 'emoji' => '🇫🇷'],
+                ['name' => 'Russian', 'emoji' => '🇷🇺'],
+                ['name' => 'Ukrainian', 'emoji' => '🇺🇦'],
+                ['name' => 'Arabic', 'emoji' => '🇸🇦'],
+                ['name' => 'Other', 'emoji' => '🏳️'],
+            ],
+            'church-size' => [
+                ['name' => 'Fewer than 50 members', 'emoji' => '😊'],
+                ['name' => '50–150 members', 'emoji' => '🤗'],
+                ['name' => '150–500 members', 'emoji' => '😄'],
+                ['name' => 'More than 500 members', 'emoji' => '🤩'],
+            ],
+            'fellowship' => [
+                ['name' => 'Coffee after the Service', 'emoji' => '☕'],
+                ['name' => 'Breakfast before the Service', 'emoji' => '🥐'],
+                ['name' => 'Lunch after the Service', 'emoji' => '🥪'],
+                ['name' => 'Dinner after the Service', 'emoji' => '🍝'],
+                ['name' => 'Hangout after the Service', 'emoji' => '🤙'],
+            ],
+            'service-offers' => [
+                ['name' => 'Kids’ Programme', 'emoji' => '🧸'],
+                ['name' => 'Creche / Baby Care', 'emoji' => '👶'],
+                ['name' => 'Youth Programme', 'emoji' => '🛹'],
+            ],
+            'program' => [
+                ['name' => 'Small Groups', 'emoji' => '👨‍👩‍👧‍👦'],
+                ['name' => 'Discipleship Course', 'emoji' => '🌱'],
+                ['name' => 'Bible Study', 'emoji' => '📖'],
+                ['name' => 'Evangelism / Outreach', 'emoji' => '📣'],
+                ['name' => 'Worship Nights', 'emoji' => '🎶'],
+                ['name' => 'Prayer Nights', 'emoji' => '🕯️'],
+                ['name' => 'Mission Trips', 'emoji' => '✈️'],
+            ],
+            'social-help' => [
+                ['name' => 'Food Bank', 'emoji' => '🥫'],
+                ['name' => 'Shelter', 'emoji' => '🏠'],
+                ['name' => 'Clothing Donation', 'emoji' => '👕'],
+                ['name' => 'Counselling', 'emoji' => '❤️‍🩹'],
+                ['name' => 'Language Courses', 'emoji' => '✍️'],
+                ['name' => 'Study Spaces', 'emoji' => '📚'],
+            ],
+            'accessibility' => [
+                ['name' => 'Wheelchair Accessible', 'emoji' => '♿'],
+                ['name' => 'Sign Language Interpreter', 'emoji' => '🤟'],
+                ['name' => 'Braille Materials', 'emoji' => '⠏'],
+                ['name' => 'Accessible toilet', 'emoji' => '🚻'],
+                ['name' => 'Parking', 'emoji' => '🅿️'],
+                ['name' => 'Bicycle Racks', 'emoji' => '🚲'],
+                ['name' => 'Livestream', 'emoji' => '🔴'],
+            ],
         ];
 
-        foreach ($tags as $category => $names) {
-            foreach ($names as $name) {
+        foreach ($tags as $category => $tagItems) {
+            foreach ($tagItems as $item) {
                 Tag::firstOrCreate(
-                    ['slug' => Str::slug($category . ' ' . $name)],
+                    ['slug' => Str::slug($category . ' ' . $item['name'])],
                     [
-                        'name' => $name,
+                        'name' => $item['name'],
                         'category' => $category,
+                        'emoji' => $item['emoji'],
                     ]
                 );
             }

@@ -4,147 +4,158 @@
             <x-authentication-card-logo />
         </x-slot>
 
-        <x-validation-errors class="mb-4" />
+        <div x-data="{ userType: '{{ old('user_type', 'user') }}' }" class="w-full">
 
-        <div x-data="{ userType: 'user' }" class="w-full">
-            <!-- Tab Buttons -->
-            <div class="mb-4 flex justify-center border-b border-gray-200">
-                <button type="button" @click="userType = 'user'"
-                        :class="{ 'border-indigo-500 text-indigo-600': userType === 'user', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': userType !== 'user' }"
-                        class="py-4 px-1 text-center border-b-2 font-medium text-sm w-1/2 focus:outline-none">
+            {{-- Tab Buttons --}}
+            <div class="mb-8 flex border-b border-d5">
+                <button type="button" id="register-user-tab" @click="userType = 'user'"
+                        :class="{ 'border-c1 text-c1': userType === 'user', 'border-transparent text-d5 hover:text-d4': userType !== 'user' }"
+                        class="py-4 px-1 text-center border-b-2 font-semibold text-base w-1/2 focus:outline-none transition duration-150 ease-in-out">
                     Register as User
                 </button>
-                <button type="button" @click="userType = 'church'"
-                        :class="{ 'border-indigo-500 text-indigo-600': userType === 'church', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': userType !== 'church' }"
-                        class="py-4 px-1 text-center border-b-2 font-medium text-sm w-1/2 focus:outline-none">
+                <button type="button" id="register-church-tab" @click="userType = 'church'"
+                        :class="{ 'border-c1 text-c1': userType === 'church', 'border-transparent text-d5 hover:text-d4': userType !== 'church' }"
+                        class="py-4 px-1 text-center border-b-2 font-semibold text-base w-1/2 focus:outline-none transition duration-150 ease-in-out">
                     Register a Church
                 </button>
             </div>
 
-            <form method="POST" action="{{ route('register') }}">
+            <x-validation-errors class="mb-4" />
+
+            {{-- User Registration Form --}}
+            <form method="POST" action="{{ route('register') }}" x-show="userType === 'user'" class="transition-all duration-300">
                 @csrf
-                <input type="hidden" name="user_type" :value="userType">
-
-                <!-- User-Specific Fields -->
-                <div x-show="userType === 'user'">
+                <input type="hidden" name="user_type" value="user">
+                <div class="space-y-6">
                     <div>
-                        <x-label for="name" value="{{ __('Name') }}" />
-                        <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+                        <x-label for="user-name" value="Your Name" class="text-base font-medium mb-1 text-d4" />
+                        <x-input id="user-name" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="e.g., John Smith" />
+                    </div>
+                    <div>
+                        <x-label for="user-email" value="Email" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="user-email" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="you@example.com"/>
+                    </div>
+                    <div>
+                        <x-label for="user-password" value="Password" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="user-password" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="password" name="password" required autocomplete="new-password" />
+                    </div>
+                    <div>
+                        <x-label for="user-password-confirmation" value="Confirm Password" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="user-password-confirmation" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="password" name="password_confirmation" required autocomplete="new-password" />
                     </div>
                 </div>
-
-                <!-- Church-Specific Fields -->
-                <div x-show="userType === 'church'" x-cloak style="display: none !important;">
-                    <div class="space-y-4">
-                        <div>
-                            <x-label for="church_name" value="{{ __('Church Name') }}" />
-                            <x-input id="church_name" class="block mt-1 w-full" type="text" name="church_name" :value="old('church_name')" />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <x-label for="denomination_id" value="{{ __('Denomination') }}" />
-                                <select name="denomination_id" id="denomination_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Select a Denomination</option>
-                                    @foreach ($denominations as $denomination)
-                                        <option value="{{ $denomination->id }}" {{ old('denomination_id') == $denomination->id ? 'selected' : '' }}>{{ $denomination->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <x-label for="country_id" value="{{ __('Country') }}" />
-                                <select name="country_id" id="country_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Select a Country</option>
-                                    @foreach ($countries as $country)
-                                        <option value="{{ $country->id }}" {{ old('country_id') == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <x-label for="address_line_1" value="{{ __('Address Line 1') }}" />
-                            <x-input id="address_line_1" class="block mt-1 w-full" type="text" name="address_line_1" :value="old('address_line_1')" />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <x-label for="city" value="{{ __('City') }}" />
-                                <x-input id="city" class="block mt-1 w-full" type="text" name="city" :value="old('city')" />
-                            </div>
-                            <div>
-                                <x-label for="state_province_region" value="{{ __('State / Province / Region') }}" />
-                                <x-input id="state_province_region" class="block mt-1 w-full" type="text" name="state_province_region" :value="old('state_province_region')" />
-                            </div>
-                            <div>
-                                <x-label for="postal_code" value="{{ __('Postal Code') }}" />
-                                <x-input id="postal_code" class="block mt-1 w-full" type="text" name="postal_code" :value="old('postal_code')" />
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <x-label for="website_url" value="{{ __('Website URL') }}" />
-                                <x-input id="website_url" class="block mt-1 w-full" type="url" name="website_url" :value="old('website_url')" />
-                            </div>
-                            <div>
-                                <x-label for="instagram_url" value="{{ __('Instagram URL') }}" />
-                                <x-input id="instagram_url" class="block mt-1 w-full" type="url" name="instagram_url" :value="old('instagram_url')" />
-                            </div>
-                            <div>
-                                <x-label for="facebook_url" value="{{ __('Facebook URL') }}" />
-                                <x-input id="facebook_url" class="block mt-1 w-full" type="url" name="facebook_url" :value="old('facebook_url')" />
-                            </div>
-                        </div>
-
-                        <!-- Livewire Filter Panel -->
-                        <div class="mt-4">
-                            <x-label value="{{ __('Church Features & Amenities') }}" />
-                            <div class="p-4 border rounded-md mt-1">
-                                @livewire('filter-panel')
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Common Fields -->
-                <div class="mt-4">
-                    <x-label for="email" value="{{ __('Email') }}" />
-                    <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-                </div>
-
-                <div class="mt-4">
-                    <x-label for="password" value="{{ __('Password') }}" />
-                    <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-                </div>
-
-                <div class="mt-4">
-                    <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                    <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-                </div>
-
-                @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                    <div class="mt-4">
-                        <x-label for="terms">
+                 @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
+                    <div class="mt-6">
+                        <x-label for="user-terms">
                             <div class="flex items-center">
-                                <x-checkbox name="terms" id="terms" required />
-                                <div class="ms-2">
+                                <x-checkbox name="terms" id="user-terms" required class="text-c1 focus:ring-c1"/>
+                                <div class="ms-2 text-sm">
                                     {!! __('I agree to the :terms_of_service and :privacy_policy', [
-                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Terms of Service').'</a>',
-                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">'.__('Privacy Policy').'</a>',
+                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline hover:text-d1 rounded-md">'.__('Terms of Service').'</a>',
+                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline hover:text-d1 rounded-md">'.__('Privacy Policy').'</a>',
                                     ]) !!}
                                 </div>
                             </div>
                         </x-label>
                     </div>
                 @endif
-
-                <div class="flex items-center justify-end mt-4">
-                    <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+                <div class="flex items-center justify-end mt-8">
+                    <a class="underline text-sm hover:text-d1 rounded-md" href="{{ route('login') }}">
                         {{ __('Already registered?') }}
                     </a>
+                    <x-button class="ms-4 bg-c1 hover:bg-ch1 dark:bg-d1 dark:hover:bg-dh1 text-c3 text-base font-bold py-3 px-6">
+                        {{ __('Register') }}
+                    </x-button>
+                </div>
+            </form>
 
-                    <x-button class="ms-4">
+            {{-- Church Registration Form --}}
+            <form method="POST" action="{{ route('register') }}" x-show="userType === 'church'" x-cloak class="transition-all duration-300" style="display: none !important;">
+                @csrf
+                <input type="hidden" name="user_type" value="church">
+                <div class="space-y-6">
+                    <div>
+                        <x-label for="church-name" value="Church Name" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="church-name" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="text" name="church_name" :value="old('church_name')" placeholder="e.g., First Community Church"/>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <x-label for="church-denomination-select" value="Denomination" class="text-base font-medium mb-1 text-d4"/>
+                            <select name="denomination_id" id="church-denomination-select" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 rounded-full shadow-sm py-3 px-4 text-lg">
+                                <option value="">Select a Denomination</option>
+                                @foreach ($denominations as $denomination)
+                                    <option value="{{ $denomination->id }}" @selected(old('denomination_id') == $denomination->id)>{{ $denomination->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                         <div>
+                            <x-label for="church-country-select" value="Country" class="text-base font-medium mb-1 text-d4"/>
+                            <select name="country_id" id="church-country-select" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 rounded-full shadow-sm py-3 px-4 text-lg">
+                                <option value="">Select a Country</option>
+                                @foreach ($countries as $country)
+                                    <option value="{{ $country->id }}" @selected(old('country_id') == $country->id)>{{ $country->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <x-label for="church-address" value="Address" class="text-base font-medium mb-1 text-d4"/>
+                        <div class="space-y-2 mt-1">
+                            <x-input id="church-address-line-1" class="block w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="text" name="address_line_1" :value="old('address_line_1')" placeholder="Street Address, e.g., 123 Main St"/>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
+                                <x-input id="church-city" class="block md:col-span-3 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="text" name="city" :value="old('city')" placeholder="City"/>
+                                <x-input id="church-postal-code" class="block md:col-span-2 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="text" name="postal_code" :value="old('postal_code')" placeholder="Postal Code"/>
+                            </div>
+                            <x-input id="church-state" class="block w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="text" name="state_province_region" :value="old('state_province_region')" placeholder="State / Province / Region"/>
+                        </div>
+                    </div>
+                     <div>
+                        <x-label for="church-website" value="Contact & Social Media" class="text-base font-medium mb-1 text-d4"/>
+                         <div class="mt-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <x-input id="church-website" class="block w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="url" name="website_url" :value="old('website_url')" placeholder="https://yourchurch.com"/>
+                            <x-input id="church-instagram" class="block w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="url" name="instagram_url" :value="old('instagram_url')" placeholder="https://instagram.com/yourchurch"/>
+                            <x-input id="church-facebook" class="block w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="url" name="facebook_url" :value="old('facebook_url')" placeholder="https://facebook.com/yourchurch"/>
+                        </div>
+                    </div>
+                    <div>
+                        <x-label for="church-email" value="Email" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="church-email" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="you@example.com"/>
+                    </div>
+                    <div>
+                        <x-label for="church-password" value="Password" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="church-password" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="password" name="password" required autocomplete="new-password" />
+                    </div>
+                    <div>
+                        <x-label for="church-password-confirmation" value="Confirm Password" class="text-base font-medium mb-1 text-d4"/>
+                        <x-input id="church-password-confirmation" class="block mt-1 w-full bg-d3 border-d5 text-d4 focus:border-c1 focus:ring-c1 py-3 px-4 text-lg" type="password" name="password_confirmation" required autocomplete="new-password" />
+                    </div>
+                    <div class="pt-2">
+                        <x-label value="Church Features & Amenities" class="text-base font-medium mb-1 text-d4"/>
+                        <div class="p-4 border border-d5 rounded-md mt-2 bg-d3">
+                            @livewire('filter-panel')
+                        </div>
+                    </div>
+                </div>
+                @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
+                    <div class="mt-6">
+                        <x-label for="church-terms">
+                            <div class="flex items-center">
+                                <x-checkbox name="terms" id="church-terms" required class="text-c1 focus:ring-c1"/>
+                                <div class="ms-2 text-sm">
+                                    {!! __('I agree to the :terms_of_service and :privacy_policy', [
+                                            'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline hover:text-d1 rounded-md">'.__('Terms of Service').'</a>',
+                                            'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline hover:text-d1 rounded-md">'.__('Privacy Policy').'</a>',
+                                    ]) !!}
+                                </div>
+                            </div>
+                        </x-label>
+                    </div>
+                @endif
+                <div class="flex items-center justify-end mt-8">
+                    <a class="underline text-sm hover:text-d1 rounded-md" href="{{ route('login') }}">
+                        {{ __('Already registered?') }}
+                    </a>
+                    <x-button class="ms-4 bg-c1 hover:bg-ch1 dark:bg-d1 dark:hover:bg-dh1 text-c3 text-base font-bold py-3 px-6">
                         {{ __('Register') }}
                     </x-button>
                 </div>
@@ -152,3 +163,4 @@
         </div>
     </x-authentication-card>
 </x-guest-layout>
+

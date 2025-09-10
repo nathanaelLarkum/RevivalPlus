@@ -21,67 +21,92 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        $validator = Validator::make($input, [
-            'user_type' => ['required', 'string', 'in:user,church'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => $this->passwordRules(),
-            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
-        ]);
+        // This is the core of the logic. We validate based on the 'user_type'
+        // hidden field from your registration form.
+        if ($input['user_type'] === 'church') {
+            $this->validateChurchRegistration($input);
+        } else {
+            $this->validateUserRegistration($input);
+        }
 
-        // Add conditional validation based on user type
-        $validator->sometimes('name', ['required', 'string', 'max:255'], function ($input) {
-            return $input['user_type'] === 'user';
-        });
-
-        $validator->sometimes(['church_name', 'denomination_id', 'country_id', 'address_line_1', 'city', 'state_province_region', 'postal_code'], ['required', 'string', 'max:255'], function ($input) {
-            return $input['user_type'] === 'church';
-        });
-
-        $validator->sometimes(['website_url', 'instagram_url', 'facebook_url'], ['nullable', 'url', 'max:255'], function ($input) {
-            return $input['user_type'] === 'church';
-        });
-
-        $validator->sometimes('tags', ['nullable', 'array'], function ($input) {
-            return $input['user_type'] === 'church';
-        });
-
-        $validator->sometimes('tags.*', ['exists:tags,id'], function ($input) {
-            return $input['user_type'] === 'church';
-        });
-
-        $validated = $validator->validate();
-
-        return DB::transaction(function () use ($validated) {
+        // We wrap the database creation in a transaction. This is a best practice.
+        // It ensures that if creating the church fails for any reason, the user
+        // account is not created either, preventing orphaned user records.
+        return DB::transaction(function () use ($input) {
             $user = User::create([
-                'name' => $validated['user_type'] === 'church' ? $validated['church_name'] : $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                // If it's a church, use the church name as the user's name.
+                // Otherwise, use the name they provided.
+                'name' => $input['user_type'] === 'church' ? $input['church_name'] : $input['name'],
+                'email' => $input['email'],
+                'password' => Hash::make($input['password']),
             ]);
 
-            if ($validated['user_type'] === 'church') {
-                $church = Church::create([
-                    'name' => $validated['church_name'],
-                    'denomination_id' => $validated['denomination_id'],
-                    'country_id' => $validated['country_id'],
-                    'address_line_1' => $validated['address_line_1'],
-                    'city' => $validated['city'],
-                    'state_province_region' => $validated['state_province_region'],
-                    'postal_code' => $validated['postal_code'],
-                    'website_url' => $validated['website_url'] ?? null,
-                    'instagram_url' => $validated['instagram_url'] ?? null,
-                    'facebook_url' => $validated['facebook_url'] ?? null,
-                    // Placeholder values as requested
+            // If the user is registering a church, we create the church record
+            // and attach all the selected tags from the filter panel.
+            if ($input['user_type'] === 'church') {
+                $church = $user->church()->create([
+                    'name' => $input['church_name'],
+                    'denomination_id' => $input['denomination_id'],
+                    'country_id' => $input['country_id'],
+                    'address_line_1' => $input['address_line_1'],
+                    'city' => $input['city'],
+                    'state_province_region' => $input['state_province_region'],
+                    'postal_code' => $input['postal_code'],
+                    'website_url' => $input['website_url'],
+                    'instagram_url' => $input['instagram_url'],
+                    'facebook_url' => $input['facebook_url'],
+                    // NOTE: You will need a more robust way to get these later,
+                    // perhaps from a geocoding API based on the address.
+                    // For now, we'll use placeholders.
                     'latitude' => 0,
                     'longitude' => 0,
                     'timezone' => 'UTC',
                 ]);
 
-                if (!empty($validated['tags'])) {
-                    $church->tags()->attach($validated['tags']);
+                // Attach all the tags from the checkboxes
+                if (!empty($input['tags'])) {
+                    $church->tags()->attach($input['tags']);
                 }
             }
 
             return $user;
         });
+    }
+
+    /**
+     * Validation rules for a standard user registration.
+     */
+    protected function validateUserRegistration(array $input): void
+    {
+        Validator::make($input, [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => $this->passwordRules(),
+            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
+        ])->validate();
+    }
+
+    /**
+     * Validation rules for a church registration.
+     */
+    protected function validateChurchRegistration(array $input): void
+    {
+        Validator::make($input, [
+            'church_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => $this->passwordRules(),
+            'denomination_id' => ['required', 'exists:denominations,id'],
+            'country_id' => ['required', 'exists:countries,id'],
+            'address_line_1' => ['required', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:255'],
+            'state_province_region' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:255'],
+            'website_url' => ['nullable', 'url', 'max:255'],
+            'instagram_url' => ['nullable', 'url', 'max:255'],
+            'facebook_url' => ['nullable', 'url', 'max:255'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['exists:tags,id'], // Ensures every tag ID submitted is valid
+            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
+        ])->validate();
     }
 }
